@@ -14,8 +14,8 @@ import numpy as np
 
 VOWELS = 'aeiou'
 CONSONANTS = 'bcdfghjklmnpqrstvwxyz'
-HAND_SIZE = 7
-
+# HAND_SIZE = 7
+wild_card = '*'
 SCRABBLE_LETTER_VALUES = {
     'a': 1, 'b': 3, 'c': 3, 'd': 2, 'e': 1, 'f': 4, 'g': 2, 'h': 4, 'i': 1, 'j': 8, 'k': 5, 'l': 1, 'm': 3, 'n': 1, 'o': 1, 'p': 3, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'v': 4, 'w': 4, 'x': 8, 'y': 4, 'z': 10
 }
@@ -104,9 +104,11 @@ def get_word_score(word, n):
         return letter_sum * second_multiple
 
     word = word.lower()
+
     letter_list = []
     for letter in word:
-        letter_list.append(letter)
+        if letter != '*':
+            letter_list.append(letter)
     letter_values = map(np.vectorize(SCRABBLE_LETTER_VALUES.get), [
                         np.array(letter_list)])
 
@@ -163,14 +165,18 @@ def deal_hand(n):
     num_vowels = int(math.ceil(n / 3))
 
     for i in range(num_vowels):
-        x = random.choice(VOWELS)
-        hand[x] = hand.get(x, 0) + 1
+        if not hand.get(wild_card):
+            hand['*'] = 1
+        else:
+            x = random.choice(VOWELS)
+            hand[x] = hand.get(x, 0) + 1
 
     for i in range(num_vowels, n):
         x = random.choice(CONSONANTS)
         hand[x] = hand.get(x, 0) + 1
 
     return hand
+
 
 #
 # Problem #2: Update a hand by removing letters
@@ -218,10 +224,26 @@ def is_valid_word(word, hand, word_list):
     word_list: list of lowercase strings
     returns: boolean
     """
+
     lowercase_word = word.lower()
     new_hand = hand.copy()
-    if lowercase_word in word_list:
-        for letters in lowercase_word:
+    found_word = lowercase_word
+    Found = found_word in word_list
+
+    if word.find('*') != -1:
+        for vowel in VOWELS:
+            vowel_wildcard = lowercase_word.replace('*', vowel)
+            if vowel_wildcard in word_list:
+                found_word = vowel_wildcard
+                Found = True
+                del new_hand['*']
+                new_hand[vowel] = new_hand.get(vowel, 0) + 1
+
+    # print(found_word)
+    # print(new_hand)
+
+    if Found:
+        for letters in found_word:
             if new_hand.get(letters):
                 new_hand[letters] -= 1
             else:
@@ -241,8 +263,10 @@ def calculate_handlen(hand):
     hand: dictionary (string-> int)
     returns: integer
     """
-
-    pass  # TO DO... Remove this line when you implement this function
+    length = 0
+    for values in hand.keys():
+        length += hand.get(values)
+    return length
 
 
 def play_hand(hand, word_list):
@@ -277,6 +301,20 @@ def play_hand(hand, word_list):
 
     # BEGIN PSEUDOCODE <-- Remove this comment when you implement this function
     # Keep track of the total score
+    word_score = 0
+    while calculate_handlen(hand) > 1:
+
+        print("Curent Hand: ", end='')
+
+        for letters in list(hand.keys()):
+            for values in range(hand.get(letters)):
+                print(letters, end=" ")
+
+        print("\n")
+
+        word = input("Enter word, or '!!' to indicate that you are finished:")
+        word_score = get_word_score(word, 7)
+        print(word, 'earned ', word_score, ' points. Total: ', word_score)
 
     # As long as there are still letters left in the hand:
 
@@ -383,4 +421,7 @@ def play_game(word_list):
 #
 if __name__ == '__main__':
     word_list = load_words()
+
+    hand = {'a': 1, 'j': 1, '*': 1, 'e': 1, 'f': 1, 'r': 1, 'x': 1}
+    play_hand(hand, word_list)
     play_game(word_list)
