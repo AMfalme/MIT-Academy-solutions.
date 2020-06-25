@@ -237,25 +237,26 @@ class CiphertextMessage(Message):
         '''
 
         for i in range(len(string.ascii_lowercase)):
-            decrypted_message = self.apply_shift(i)
-            for words in decrypted_message.split():
-                if not is_word(self.valid_words, words):
+            decrypted_message_word_list = self.apply_shift(i).split()
+            for pos, words in enumerate(decrypted_message_word_list):
+                if is_word(self.valid_words, words):
+                    if pos == len(decrypted_message_word_list)-1:
+                        return(26-i, self.apply_shift(i))
+                else:
                     break
-        shift = i-1
-        return(shift, self.apply_shift(shift))
 
 
 if __name__ == '__main__':
 
     #    #Example test case (PlaintextMessage)
-    # plaintext = PlaintextMessage('hello', 26)
+    plaintext = PlaintextMessage('Griffin', 4)
     # #    print('Expected Output: jgnnq')
-    # print('Actual Output:', plaintext.get_message_text_encrypted())
+    print('Actual Output:', plaintext.get_message_text_encrypted())
     # print(plaintext.build_shift_dict(26))
     #
     #    #Example test case (CiphertextMessage)
-    ciphertext = CiphertextMessage('jgnnq')
-    print('Expected Output:', (24, 'hello'))
+    ciphertext = CiphertextMessage('Kvmjjmr')
+    print('Expected Output:', (4, 'Griffin'))
     print('Actual Output:', ciphertext.decrypt_message())
 
     # TODO: WRITE YOUR TEST CASES HERE
