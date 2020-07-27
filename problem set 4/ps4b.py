@@ -240,23 +240,25 @@ class CiphertextMessage(Message):
             decrypted_message_word_list = self.apply_shift(i).split()
             for pos, words in enumerate(decrypted_message_word_list):
                 if is_word(self.valid_words, words):
-                    if pos == len(decrypted_message_word_list)-1:
+                    if (pos+1) == len(decrypted_message_word_list):
                         return(26-i, self.apply_shift(i))
                 else:
                     break
+        return(26-i, self.apply_shift(i))
 
 
 if __name__ == '__main__':
-
-    #    #Example test case (PlaintextMessage)
-    plaintext = PlaintextMessage('Griffin', 4)
-    # #    print('Expected Output: jgnnq')
+    # Example test case (PlaintextMessage)
+    plaintext = PlaintextMessage(
+        'WKH TXLFN EURZQ IRA MXPSV RYHU WKH ODCB GRJ', 3)
+    print('Expected Output: THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG')
     print('Actual Output:', plaintext.get_message_text_encrypted())
-    # print(plaintext.build_shift_dict(26))
-    #
-    #    #Example test case (CiphertextMessage)
-    ciphertext = CiphertextMessage('Kvmjjmr')
-    print('Expected Output:', (4, 'Griffin'))
+
+    # Example test case (CiphertextMessage)
+    ciphertext = CiphertextMessage(
+        ' WKH TXLFN EURZQ IRA MXPSV RYHU WKH ODCB GRJ ')
+    # ciphertext = CiphertextMessage(get_story_string())
+    # print('Expected Output:', (24, 'hello'))
     print('Actual Output:', ciphertext.decrypt_message())
 
     # TODO: WRITE YOUR TEST CASES HERE
